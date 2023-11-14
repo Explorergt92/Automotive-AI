@@ -7,8 +7,12 @@ import spacy
 import speech_recognition as sr
 
 from api.openai_functions.gpt_chat import (
-    chat_gpt, chat_gpt_conversation, load_conversation_history,
-    save_conversation_history, summarize_conversation_history_direct)
+    chat_gpt,
+    chat_gpt_conversation,
+    load_conversation_history,
+    save_conversation_history,
+    summarize_conversation_history_direct,
+)
 from audio.audio_output import tts_output
 from config import EMAIL_PROVIDER
 from utils.commands import voice_commands
@@ -20,10 +24,12 @@ if EMAIL_PROVIDER == "Google":
     )
 
 if EMAIL_PROVIDER == "365":
-    from api.microsoft_functions.graph_api import (create_new_appointment,
-                                                   get_emails,
-                                                   get_next_appointment,
-                                                   send_email_with_attachments)
+    from api.microsoft_functions.graph_api import (
+        create_new_appointment,
+        get_emails,
+        get_next_appointment,
+        send_email_with_attachments,
+    )
 
 
 nlp = spacy.load("en_core_web_lg")
@@ -75,6 +81,21 @@ def recognize_command(text, commands):
         return None
 
 
+def get_user_input():
+    """
+    Prompts the user to choose between typing or speaking a command.
+
+    Returns:
+        str: The user's command.
+    """
+    print("Please enter a command or say 'speak' to use voice recognition:")
+    user_input = input()
+    if user_input.lower() == "speak":
+        return recognize_speech()
+    else:
+        return user_input
+
+
 def recognize_speech():
     """
     Recognizes speech using the default microphone as the audio source.
@@ -103,18 +124,17 @@ def recognize_speech():
         return None
 
 
-def handle_common_voice_commands(
-        args, user_object_id=None, email_provider=None):
+def handle_common_voice_commands(args, user_object_id=None, email_provider=None):
     """
-    Handle common voice commands.
+    Handle common voice commands or text input.
 
     Args:
-        args: [description of args]
-        user_object_id: [description of user_object_id]
-        email_provider: [description of email_provider]
+        args: Command line arguments.
+        user_object_id: The user object ID for Microsoft Graph API.
+        email_provider: The email provider being used (e.g., "365" for Microsoft, "Google" for Gmail).
 
     Returns:
-        [description of the return value, if any]
+        The result of the executed command, if any.
     """
 
     standby_phrases = ["enter standby mode", "go to sleep", "stop listening"]
@@ -126,8 +146,8 @@ def handle_common_voice_commands(
 
     while True:
         if not standby_mode:
-            print("\nPlease say a command:")
-        text = recognize_speech()
+            print("\nPlease enter a command or say 'speak' to use voice recognition:")
+        text = get_user_input()  # Use the new function to get user input
         if text:
             if any(phrase in text.lower() for phrase in standby_phrases):
                 standby_mode = True
@@ -238,7 +258,9 @@ def handle_common_voice_commands(
 
                 elif cmd == "ASK_CHATGPT_QUESTION":
                     print("Please ask your question:")
-                    question = recognize_speech()
+                    question = (
+                        get_user_input()
+                    )  # Use the new function to get user input
                     if question:
                         chatgpt_response = chat_gpt(question)
                         print(f"Answer: {chatgpt_response}")
@@ -246,6 +268,7 @@ def handle_common_voice_commands(
                     else:
                         print("I didn't catch your question. Please try again.")
                         tts_output("I didn't catch your question. Please try again.")
+
                 elif cmd == "check_google_email" and email_provider == "Google":
                     emails = get_emails_google(user_object_id=None)
                     if emails:
@@ -258,7 +281,9 @@ def handle_common_voice_commands(
                                 f"From: {email['from']}, Subject: {email['subject']}, Body: {snippet}"
                             )
                             tts_output("Would you like to delete this email?")
-                            response = recognize_speech()
+                            response = (
+                                get_user_input()
+                            )  # Use the new function to get user input
                             if response is not None and "yes" in response.lower():
                                 delete_email(email["id"])
                                 print("Email deleted.")
@@ -269,14 +294,8 @@ def handle_common_voice_commands(
                     else:
                         print("No emails found.")
 
-                else:
-                    continue
             else:
                 if not standby_mode and not conversation_active:
                     print("Command not recognized. Please try again.")
-                    continue
                 elif conversation_active:
                     print("Unrecognized input. Please try again.")
-                    continue
-                else:
-                    continue

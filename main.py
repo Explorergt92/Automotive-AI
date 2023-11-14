@@ -22,7 +22,6 @@ email_provider = EMAIL_PROVIDER
 # Instantiate OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-
 initialize_audio()
 
 response_text = chat_gpt("Hello")
@@ -46,7 +45,11 @@ if email_provider == "365":
 if email_provider == "Google":
     graph_api = google_api
 
-if args.device == "none":
+# Check the device type from command line arguments
+if args.device == "elm327":
+    # If the device type is "elm327", handle voice commands for ELM327
+    handle_voice_commands_elm327(graph_api.user_object_id)
+else:
     if email_provider == "365":
         handle_common_voice_commands(
             args, graph_api.user_object_id, email_provider
@@ -55,5 +58,3 @@ if args.device == "none":
         handle_common_voice_commands(
             args, email_provider=email_provider
         )
-elif args.device == "elm327":
-    handle_voice_commands_elm327(graph_api.user_object_id)

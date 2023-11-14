@@ -11,6 +11,7 @@ from voice.voice_recognition import (
     recognize_command,
     tts_output,
     handle_common_voice_commands,
+    get_user_input,
 )
 from utils.commands import voice_commands, ELM327_COMMANDS
 from utils.serial_commands import (
@@ -25,7 +26,7 @@ from api.openai_functions.gpt_chat import chat_gpt_custom
 
 def handle_voice_commands_elm327(user_object_id):
     """
-    Listen for voice commands from the user and execute them.
+    Listen for voice commands from the user and execute them, or allow the user to type commands.
 
     Args:
         user_object_id: The user object ID for Microsoft Graph API.
@@ -46,8 +47,8 @@ def handle_voice_commands_elm327(user_object_id):
 
     while True:
         if not standby_mode:
-            print("\nPlease say a command:")
-        text = recognize_speech()
+            print("\nPlease enter a command or say 'speak' to use voice recognition:")
+        text = get_user_input()  # Use the new function to get user input
         if text:
             if any(phrase in text.lower() for phrase in standby_phrases):
                 standby_mode = True

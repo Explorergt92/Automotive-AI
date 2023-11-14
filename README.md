@@ -8,6 +8,8 @@ An experimental open-source application that integrates the OpenAi gpt-3.5-turbo
 
 11/12/2023: Updated to use [OpenAI v1.2.3](https://github.com/openai/openai-python/releases/)
 
+11/14/2023: Added "development" branch with the option to use text input in the terminal instead of voice commands.
+
 🔜 ElevenLabs TTS, Google Calendar integration coming soon.
 
 ## 🛠️ Built and tested using:
