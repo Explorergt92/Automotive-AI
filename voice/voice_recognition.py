@@ -32,7 +32,7 @@ if EMAIL_PROVIDER == "365":
     )
 
 
-nlp = spacy.load("en_core_web_lg")
+nlp = spacy.load("en_core_web_md")
 
 
 def get_similarity_score(text1, text2):
@@ -124,14 +124,18 @@ def recognize_speech():
         return None
 
 
-def handle_common_voice_commands(args, user_object_id=None, email_provider=None):
+def handle_common_voice_commands(
+        args,
+        user_object_id=None,
+        email_provider=None
+):
     """
     Handle common voice commands or text input.
 
     Args:
         args: Command line arguments.
         user_object_id: The user object ID for Microsoft Graph API.
-        email_provider: The email provider being used (e.g., "365" for Microsoft, "Google" for Gmail).
+        email_provider: The email provider being used.
 
     Returns:
         The result of the executed command, if any.
@@ -146,7 +150,7 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
 
     while True:
         if not standby_mode:
-            print("\nPlease enter a command or say 'speak' to use voice recognition:")
+            print("\nPlease enter a command or say 'speak' to use your voice:")
         text = get_user_input()  # Use the new function to get user input
         if text:
             if any(phrase in text.lower() for phrase in standby_phrases):
@@ -178,7 +182,10 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
 
                 if "clear all history" in text.lower():
                     conversation_history = [
-                        {"role": "system", "content": "You are an in car AI assistant."}
+                        {
+                            "role": "system",
+                            "content": "You are an AI assistant"
+                        }
                     ]
                     save_conversation_history(conversation_history)
                     print("Conversation history cleared.")
@@ -213,7 +220,10 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                 continue
 
             if not standby_mode and conversation_active:
-                chatgpt_response = chat_gpt_conversation(text, conversation_history)
+                chatgpt_response = chat_gpt_conversation(
+                    text,
+                    conversation_history
+                )
                 conversation_history.append({"role": "user", "content": text})
                 conversation_history.append(
                     {"role": "assistant", "content": chatgpt_response}
@@ -223,7 +233,10 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                 tts_output(chatgpt_response)
                 continue
 
-            recognized_command = recognize_command(text, list(voice_commands.keys()))
+            recognized_command = recognize_command(
+                text,
+                list(voice_commands.keys())
+            )
 
             if recognized_command:
                 cmd = voice_commands[recognized_command]
@@ -254,7 +267,12 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                     subject = "Test email"
                     body = "This is a test email."
                     attachments = ["file1.txt", "file2.txt"]
-                    send_email_with_attachments(email_to, subject, body, attachments)
+                    send_email_with_attachments(
+                        email_to,
+                        subject,
+                        body,
+                        attachments
+                    )
 
                 elif cmd == "ASK_CHATGPT_QUESTION":
                     print("Please ask your question:")
@@ -266,8 +284,8 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                         print(f"Answer: {chatgpt_response}")
                         tts_output(chatgpt_response)
                     else:
-                        print("I didn't catch your question. Please try again.")
-                        tts_output("I didn't catch your question. Please try again.")
+                        print("I didn't catch your question. Try again.")
+                        tts_output("I didn't catch your question. Try again.")
 
                 elif cmd == "check_google_email" and email_provider == "Google":
                     emails = get_emails_google(user_object_id=None)
