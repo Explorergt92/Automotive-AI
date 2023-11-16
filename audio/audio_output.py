@@ -1,13 +1,10 @@
 """
 This module provides functionality related to audio playback.
 """
-import os
 from typing import Union
 from io import BytesIO
 import pygame
 from gtts import gTTS
-
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
 
 def initialize_audio():
