@@ -6,7 +6,7 @@ An experimental open-source application that integrates the OpenAi gpt-3.5-turbo
 
 ⚠️ ***This is a work in progress*** ⚠️
 
-11/12/2023: Updated to use [OpenAI v1.2.3](https://github.com/openai/openai-python/releases/)
+11/16/2023: Updated to use [OpenAI v1.3.0](https://github.com/openai/openai-python/releases/)
 
 11/14/2023: Added "development" branch with the option to use text input in the terminal instead of voice commands.
 
@@ -31,9 +31,7 @@ git clone https://github.com/Explorergt92/Automotive-AI.git
 2. Create a conda environment and activate it: [Download Conda](https://conda.io/projects/conda/en/latest/user-guide/install/download.html)
 ### Linux or Windows
 ```bash or PowerShell
-conda create -n autoai python=3.11
-
-conda install -n autoai -c conda-forge python=3.11
+conda create -n autoai -c conda-forge python=3.11
 
 conda activate autoai
 ```
