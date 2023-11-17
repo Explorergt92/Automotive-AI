@@ -6,6 +6,7 @@ import base64
 import datetime
 import importlib
 import msal
+import logging
 import requests
 import dateparser
 import pytz
@@ -24,6 +25,14 @@ from config import (
     EMAIL_PROVIDER,
 )
 
+# Configure logging
+logging.basicConfig(
+    filename="app.log",  # Log file name
+    filemode="a",  # Append mode (use 'w' for overwrite mode)
+    level=logging.DEBUG,  # Set to DEBUG to capture all levels of logs
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+
 # Set up authentication with Microsoft Graph API
 authority = f"https://login.microsoftonline.com/{GRAPH_TENANT_ID}"
 client_id = GRAPH_CLIENT_ID
@@ -35,24 +44,29 @@ user_object_id = None
 
 
 if EMAIL_PROVIDER == "365":
-    authorization_code = ms_authserver.get_auth_code()
+    try:
+        authorization_code = ms_authserver.get_auth_code()
+        app = msal.ConfidentialClientApplication(
+            client_id=client_id, client_credential=client_secret, authority=authority
+        )
 
-    app = msal.ConfidentialClientApplication(
-        client_id=client_id, client_credential=client_secret, authority=authority
-    )
+        result = app.acquire_token_by_authorization_code(
+            authorization_code, scope, redirect_uri=redirect_uri
+        )
 
-    result = app.acquire_token_by_authorization_code(
-        authorization_code, scope, redirect_uri=redirect_uri
-    )
+        if "access_token" in result:
+            access_token = result["access_token"]
+            refresh_token = result["refresh_token"]
+        else:
+            print(result.get("error"))
+            print(result.get("error_description"))
+            print(result.get("correlation_id"))
+            raise ValueError("Could not authenticate with Microsoft Graph API")
 
-    if "access_token" in result:
-        access_token = result["access_token"]
-        refresh_token = result["refresh_token"]
-    else:
-        print(result.get("error"))
-        print(result.get("error_description"))
-        print(result.get("correlation_id"))
-        raise ValueError("Could not authenticate with Microsoft Graph API")
+    except ValueError as e:
+        print(f"Service exception during MSAL operation: {e}")
+    except IOError as io_error:
+        print(f"Client exception during MSAL operation: {io_error}")
 
 
 def perform_graph_api_request(authorization_code):
@@ -73,15 +87,21 @@ def refresh_access_token():
     Refreshes the access token using the global refresh_token and scope.
     Updates the global access_token variable with the new token.
     """
-    global access_token
-    result = app.acquire_token_by_refresh_token(refresh_token, scope)
-    if "access_token" in result:
-        access_token = result["access_token"]
-    else:
-        print("Failed to refresh access token.")
-        print(result.get("error"))
-        print(result.get("error_description"))
-        print(result.get("correlation_id"))
+    try:
+        global access_token
+        result = app.acquire_token_by_refresh_token(refresh_token, scope)
+        if "access_token" in result:
+            access_token = result["access_token"]
+        else:
+            print("Failed to refresh access token.")
+            print(result.get("error"))
+            print(result.get("error_description"))
+            print(result.get("correlation_id"))
+
+    except ValueError as e:
+        print(f"Service exception during MSAL operation: {e}")
+    except IOError as io_error:
+        print(f"Client exception during MSAL operation: {io_error}")
 
 
 def get_user_object_id(user_principal_name):
@@ -94,28 +114,33 @@ def get_user_object_id(user_principal_name):
     Returns:
         str: The user object ID.
     """
-    global user_object_id
+    try:
+        global user_object_id
 
-    if user_object_id is not None:
-        return user_object_id
+        if user_object_id is not None:
+            return user_object_id
 
-    url = "https://graph.microsoft.com/v1.0/me"
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json",
-    }
-    response = requests.get(url, headers=headers, timeout=10)
-    if response.status_code == 200:
-        user_data = response.json()
-        return user_data["id"]
-    else:
-        if response.status_code == 401:
-            refresh_access_token()
-            return get_user_object_id(user_principal_name)
+        url = "https://graph.microsoft.com/v1.0/me"
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+        }
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            user_data = response.json()
+            return user_data["id"]
         else:
-            print(f"Error: {response.status_code}")
-            print(response.json())
-            return None
+            if response.status_code == 401:
+                refresh_access_token()
+                return get_user_object_id(user_principal_name)
+            else:
+                print(f"Error: {response.status_code}")
+                print(response.json())
+                return None
+    except ValueError as e:
+        print(f"Service exception during MSAL operation: {e}")
+    except IOError as io_error:
+        print(f"Client exception during MSAL operation: {io_error}")
 
 
 def get_next_appointment(user_object_id):

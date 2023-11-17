@@ -5,6 +5,7 @@ and spacy.
 
 import spacy
 import speech_recognition as sr
+import logging
 
 from api.openai_functions.gpt_chat import (
     chat_gpt,
@@ -31,6 +32,13 @@ if EMAIL_PROVIDER == "365":
         send_email_with_attachments,
     )
 
+logging.basicConfig(
+    filename="app.log",  # Log file name
+    filemode="a",  # Append mode (use 'w' for overwrite mode)
+    level=logging.DEBUG,  # Set to DEBUG to capture all levels of logs
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+
 
 nlp = spacy.load("en_core_web_md")
 
@@ -46,9 +54,12 @@ def get_similarity_score(text1, text2):
     Returns:
         float: The similarity score between the two texts.
     """
+    logging.debug(f"Computing similarity score between '{text1}' and '{text2}'")
     doc1 = nlp(text1)
     doc2 = nlp(text2)
-    return doc1.similarity(doc2)
+    score = doc1.similarity(doc2)
+    logging.debug(f"Similarity score: {score}")
+    return score
 
 
 def recognize_command(text, commands):
@@ -76,6 +87,7 @@ def recognize_command(text, commands):
             best_match = command
 
     if max_similarity > 0.7:  # You can adjust this threshold
+        logging.debug(f"Recognized command: {best_match}")
         return best_match
     else:
         return None
@@ -88,8 +100,9 @@ def get_user_input():
     Returns:
         str: The user's command.
     """
-    print("Please enter a command or say 'speak' to use voice recognition:")
+    # print("Please enter a command or say 'speak' to use voice recognition:")
     user_input = input()
+    logging.debug(f"User input: {user_input}")
     if user_input.lower() == "speak":
         return recognize_speech()
     else:
@@ -151,7 +164,7 @@ def handle_common_voice_commands(
     while True:
         if not standby_mode:
             print("\nPlease enter a command or say 'speak' to use your voice:")
-        text = get_user_input()  # Use the new function to get user input
+        text = get_user_input()
         if text:
             if any(phrase in text.lower() for phrase in standby_phrases):
                 standby_mode = True
@@ -278,7 +291,7 @@ def handle_common_voice_commands(
                     print("Please ask your question:")
                     question = (
                         get_user_input()
-                    )  # Use the new function to get user input
+                    )
                     if question:
                         chatgpt_response = chat_gpt(question)
                         print(f"Answer: {chatgpt_response}")
@@ -301,7 +314,7 @@ def handle_common_voice_commands(
                             tts_output("Would you like to delete this email?")
                             response = (
                                 get_user_input()
-                            )  # Use the new function to get user input
+                            )
                             if response is not None and "yes" in response.lower():
                                 delete_email(email["id"])
                                 print("Email deleted.")

@@ -7,8 +7,6 @@ import serial
 from config import SERIAL_PORT, BAUD_RATE
 from datastreams.flask_air_fuel_datastream import start_datastream, app
 from voice.voice_recognition import (
-    recognize_speech,
-    recognize_command,
     tts_output,
     handle_common_voice_commands,
     get_user_input,
