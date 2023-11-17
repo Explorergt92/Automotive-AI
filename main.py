@@ -19,7 +19,7 @@ load_dotenv()
 
 email_provider = EMAIL_PROVIDER
 
-# Instantiate OpenAI client
+
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 initialize_audio()
@@ -38,16 +38,17 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+SELECTED_API = None
+
 if email_provider == "365":
     authorization_code = ms_authserver.get_auth_code()
     graph_api.perform_graph_api_request(authorization_code)
+    SELECTED_API = graph_api
+elif email_provider == "Google":
+    SELECTED_API = google_api
 
-if email_provider == "Google":
-    graph_api = google_api
-
-# Check the device type from command line arguments
 if args.device == "elm327":
-    # If the device type is "elm327", handle voice commands for ELM327
+
     handle_voice_commands_elm327(graph_api.user_object_id)
 else:
     if email_provider == "365":

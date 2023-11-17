@@ -23,18 +23,25 @@ def check_and_add_sensor(sensor):
 
 
 # Check for supported sensors
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_1)
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_2)
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_3)
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_4)
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_5)
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_6)
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_7)
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_8)
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_9)
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_10)
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_11)
-check_and_add_sensor(obd.commands.MONITOR_MISFIRE_CYLINDER_12)
+def find_obd_command(name):
+    for cmd in obd.commands:
+        if cmd.name == name:
+            return cmd
+    return None
+
+
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_1"))
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_2"))
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_3"))
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_4"))
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_5"))
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_6"))
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_7"))
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_8"))
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_9"))
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_10"))
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_11"))
+check_and_add_sensor(find_obd_command("MONITOR_MISFIRE_CYLINDER_12"))
 
 
 @app.route("/")
@@ -44,7 +51,8 @@ def index():
         <html>
             <head>
                 <title>OBD-II Live Data Stream</title>
-                <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+                <script src="https://cdn.plot.ly/plotly-latest.min.js">
+                </script>
             </head>
             <body>
                 <div id="plot"></div>
@@ -98,7 +106,6 @@ def index():
 
 @app.route("/data")
 def data():
-    global timestamps, SENSOR_DATA
 
     # Read the required OBD-II parameters
     for sensor in supported_sensors:
