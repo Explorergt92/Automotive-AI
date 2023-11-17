@@ -2,6 +2,7 @@
 This is the main script of the application doc string.
 """
 import argparse
+import logging
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -15,6 +16,15 @@ import api.microsoft_functions.graph_api as graph_api
 import api.microsoft_functions.ms_authserver as ms_authserver
 import api.google_functions.google_api as google_api
 
+# Configure logging
+logging.basicConfig(
+    filename="app.log",  # Log file name
+    filemode="a",  # Append mode (use 'w' for overwrite mode)
+    level=logging.DEBUG,  # Set to DEBUG to capture all levels of logs
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+
+# Load environment variables
 load_dotenv()
 
 email_provider = EMAIL_PROVIDER
@@ -24,9 +34,12 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 initialize_audio()
 
-response_text = chat_gpt("Hello")
-print(response_text)
-tts_output(response_text)
+try:
+    response_text = chat_gpt("Hello")
+    logging.info(response_text)
+    tts_output(response_text)
+except ValueError as e:
+    logging.exception(f"Failed to get response from chat_gpt or output it.{e}")
 
 parser = argparse.ArgumentParser(description="Choose the device type")
 parser.add_argument(
@@ -47,15 +60,19 @@ if email_provider == "365":
 elif email_provider == "Google":
     SELECTED_API = google_api
 
-if args.device == "elm327":
-
-    handle_voice_commands_elm327(graph_api.user_object_id)
-else:
-    if email_provider == "365":
-        handle_common_voice_commands(
-            args, graph_api.user_object_id, email_provider
-        )
-    elif email_provider == "Google":
-        handle_common_voice_commands(
-            args, email_provider=email_provider
-        )
+try:
+    # Check the device type from command line arguments
+    if args.device == "elm327":
+        # If the device type is "elm327", handle voice commands for ELM327
+        handle_voice_commands_elm327(graph_api.user_object_id)
+    else:
+        if email_provider == "365":
+            handle_common_voice_commands(
+                args,
+                graph_api.user_object_id,
+                email_provider
+            )
+        elif email_provider == "Google":
+            handle_common_voice_commands(args, email_provider=email_provider)
+except ValueError as e:
+    logging.exception(f"Error occurred while handling voice commands: {e}")
