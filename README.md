@@ -2,7 +2,7 @@
 
 Join the Discord Server (https://discord.gg/VsVuxche)
 
-An experimental open-source application that integrates the OpenAi gpt-3.5-turbo-1106 or gpt-4-1106-preview models via API, NLP, TTS, STT, and an OBD-II ELM327 device to create a voice-activated, hands-free, vehicle diagnostic assistant.
+An experimental open-source application that integrates the OpenAi gpt-3.5-turbo-1106 or gpt-3.5-turbo-1106 models via API, NLP, TTS, STT, and an OBD-II ELM327 device to create a voice-activated, hands-free, vehicle diagnostic assistant.
 
 ⚠️ ***This is a work in progress*** ⚠️
 

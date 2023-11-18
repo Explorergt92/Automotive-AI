@@ -26,7 +26,7 @@ def chat_gpt(prompt):
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
             completion = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-3.5-turbo-1106",
                 messages=[
                     {
                         "role": "system",
@@ -89,7 +89,7 @@ def chat_gpt_custom(processed_data):
         with console.status("[bold green]Processing", spinner="dots"):
             try:
                 completion = client.chat.completions.create(
-                    model="gpt-4-1106-preview",
+                    model="gpt-3.5-turbo-1106",
                     messages=[
                         {
                             "role": "system",
@@ -136,7 +136,7 @@ def chat_gpt_conversation(prompt, conversation_history):
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-3.5-turbo-1106",
                 messages=conversation_history
                 + [{"role": "user", "content": f"{prompt}"}],
                 max_tokens=200,
@@ -252,7 +252,7 @@ def summarize_conversation_history_direct(conversation_history):
             ]
 
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-3.5-turbo-1106",
                 messages=messages,
                 max_tokens=300,
                 n=1,
