@@ -13,7 +13,7 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 console = Console()
 
 
-def chat_gpt(prompt):
+def chat_function(prompt):
     """
     Generates a response using OpenAI's API.
 

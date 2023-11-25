@@ -1,5 +1,8 @@
+import os
+import sys
 from typing import Union
 from io import BytesIO
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 from gtts import gTTS
 import pyttsx3
@@ -8,8 +11,9 @@ from config import TTS_ENGINE, TTS_VOICE_ID, TTS_RATE
 
 
 def initialize_audio():
+    # Initialize Pygame mixer
+    pygame.mixer.pre_init(44100, -16, 2, 2048)
     pygame.mixer.init()
-
 
 def play_audio(audio: Union[bytes, BytesIO]):
     if not isinstance(audio, (bytes, BytesIO)):

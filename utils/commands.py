@@ -3,6 +3,17 @@ This module defines a dictionary for voice commands.
 """
 # voice commands dictionary
 voice_commands = {
+    "ask a question": "ASK_CHATGPT_QUESTION",
+    "start conversation": "START_CONVERSATION",
+    "next on outlook calendar": "next_appointment",
+    "create outlook appointment": "create_appointment",
+    "check outlook": "check_outlook_email",
+    "send email with outlook": "send_email",
+    "start data stream": "START_DATA_STREAM",
+    "stop data stream": "STOP_DATA_STREAM",
+    "save data to spreadsheet": "SAVE_DATA_TO_SPREADSHEET",
+    "check gmail": "check_google_email",
+    "what's next on my google calendar": "check_google_calendar",
     "engine rpm": "010C",
     "intake air temperature": "010F",
     "fuel tank level": "012F",
@@ -18,17 +29,6 @@ voice_commands = {
     "calibration verification numbers": "0906",
     "start a diagnostic report": "DIAGNOSTIC_REPORT",
     "send a diagnostic report": "send_diagnostic_report",
-    "next on outlook calendar": "next_appointment",
-    "create a new outlook appointment": "create_appointment",
-    "check outlook": "check_outlook_email",
-    "send an email with outlook": "send_email",
-    "start data stream": "START_DATA_STREAM",
-    "stop data stream": "STOP_DATA_STREAM",
-    "save data to spreadsheet": "SAVE_DATA_TO_SPREADSHEET",
-    "ask a question": "ASK_CHATGPT_QUESTION",
-    "start conversation": "START_CONVERSATION",
-    "check gmail": "check_google_email",
-    "what's next on my google calendar": "check_google_calendar",
 }
 
 # ELM327 commands set

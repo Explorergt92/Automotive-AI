@@ -4,9 +4,8 @@ This is the main script of the application doc string.
 import argparse
 import logging
 from openai import OpenAI
-from dotenv import load_dotenv
 
-from api.openai_functions.gpt_chat import chat_gpt
+from api.openai_functions.gpt_chat import chat_function
 from voice.elm327 import handle_voice_commands_elm327
 from voice.voice_recognition import handle_common_voice_commands
 from audio.audio_output import tts_output, initialize_audio
@@ -24,22 +23,21 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-# Load environment variables
-load_dotenv()
 
 email_provider = EMAIL_PROVIDER
 
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-initialize_audio()
+# initialize_audio()
 
 try:
-    response_text = chat_gpt("Hello")
+    response_text = chat_function("Hello")
     logging.info(response_text)
+    initialize_audio()
     tts_output(response_text)
 except ValueError as e:
-    logging.exception(f"Failed to get response from chat_gpt or output it.{e}")
+    logging.exception(f"Failed to get response from chat_function or output it.{e}")
 
 parser = argparse.ArgumentParser(description="Choose the device type")
 parser.add_argument(

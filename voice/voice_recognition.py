@@ -8,7 +8,7 @@ import speech_recognition as sr
 import logging
 
 from api.openai_functions.gpt_chat import (
-    chat_gpt,
+    chat_function,
     chat_gpt_conversation,
     load_conversation_history,
     save_conversation_history,
@@ -293,7 +293,7 @@ def handle_common_voice_commands(
                         get_user_input()
                     )
                     if question:
-                        chatgpt_response = chat_gpt(question)
+                        chatgpt_response = chat_function(question)
                         print(f"Answer: {chatgpt_response}")
                         tts_output(chatgpt_response)
                     else:
