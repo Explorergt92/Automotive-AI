@@ -45,7 +45,7 @@ def handle_voice_commands_elm327(user_object_id):
 
     while True:
         if not standby_mode:
-            print("\nPlease enter a command or say 'speak' to use voice recognition:")
+            print("\nPlease enter a command or type 'speak' to use voice recognition:")
         text = get_user_input()  # Use the new function to get user input
         if text:
             if any(phrase in text.lower() for phrase in standby_phrases):

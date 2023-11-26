@@ -100,7 +100,7 @@ def get_user_input():
     Returns:
         str: The user's command.
     """
-    # print("Please enter a command or say 'speak' to use voice recognition:")
+    # print("Please enter a command or type 'speak' to use voice recognition:")
     user_input = input()
     logging.debug(f"User input: {user_input}")
     if user_input.lower() == "speak":
@@ -163,7 +163,7 @@ def handle_common_voice_commands(
 
     while True:
         if not standby_mode:
-            print("\nPlease enter a command or say 'speak' to use your voice:")
+            print("\nPlease enter a command or type 'speak' to use your voice:")
         text = get_user_input()
         if text:
             if any(phrase in text.lower() for phrase in standby_phrases):
