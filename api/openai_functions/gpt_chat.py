@@ -1,6 +1,7 @@
 """
 This module provides functions for working with OpenAI's API.
 """
+import time
 import os
 import json
 import ast
@@ -13,52 +14,60 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 console = Console()
 
 
-def chat_gpt(prompt):
+def chat_gpt(prompt, attempt=1):
     """
-    Generates a response using OpenAI's API.
+    Generates a response using OpenAI's API with retry logic.
 
     Args:
         prompt (str): The prompt to generate a response for.
+        attempt (int): The current attempt number.
 
     Returns:
         str: The generated response.
     """
+    models = ["gpt-3.5-turbo-1106", "gpt-4-1106-preview"]
+    model = models[0] if attempt < 3 else models[1]
+    timeout = 10  # seconds
+
     with console.status("[bold green]Generating...", spinner="dots"):
-        try:
-            completion = client.chat.completions.create(
-                model="gpt-3.5-turbo-1106",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an AI assistant.",
-                    },
-                    {
-                        "role": "user",
-                        "content": f"{prompt}",
-                    },
-                ],
-                max_tokens=200,
-                n=1,
-                stop=None,
-                temperature=0.5,
-                frequency_penalty=0,
-                presence_penalty=0,
-            )
-            # Extract the text part of the response
-            response_text = completion.choices[0].message.content.strip()
-        except APIConnectionError as e:
-            console.print("[bold red]The server could not be reached")
-            console.print(e.__cause__)
-            response_text = "Error: The server could not be reached."
-        except RateLimitError as e:
-            console.print(f"[bold red]A 429 status code.{e}")
-            response_text = "Error: Rate limit exceeded. Try again later."
-        except APIStatusError as e:
-            console.print(f"[bold red]Error code was received{e}")
-            console.print(e.status_code)
-            console.print(e.response)
-            response_text = f"API error occurred status code {e.status_code}"
-    return response_text
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            try:
+                completion = client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are an AI assistant.",
+                        },
+                        {
+                            "role": "user",
+                            "content": f"{prompt}",
+                        },
+                    ],
+                    max_tokens=200,
+                    n=1,
+                    stop=None,
+                    temperature=0.5,
+                    frequency_penalty=0,
+                    presence_penalty=0,
+                )
+                # Extract the text part of the response
+                response_text = completion.choices[0].message.content.strip()
+                return response_text
+            except (APIConnectionError, RateLimitError, APIStatusError) as e:
+                console.print(f"[bold red]Attempt {attempt}: {e}")
+                if time.time() - start_time >= timeout:
+                    break
+                time.sleep(1)  # Sleep for a short time before retrying
+
+    # If the function hasn't returned by now, it means it has timed out
+    if attempt < 3:
+        console.print(f"[bold yellow]Retrying with attempt {attempt + 1}...")
+        return chat_gpt(prompt, attempt + 1)
+    else:
+        console.print("[bold red]All attempts failed. Restarting the app...")
+        raise SystemExit  # Exit the application
 
 
 def chat_gpt_custom(processed_data):

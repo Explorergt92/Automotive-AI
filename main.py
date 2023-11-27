@@ -1,6 +1,8 @@
 """
 This is the main script of the application doc string.
 """
+import sys
+import os
 import argparse
 import logging
 from openai import OpenAI
@@ -16,13 +18,16 @@ import api.microsoft_functions.graph_api as graph_api
 import api.microsoft_functions.ms_authserver as ms_authserver
 import api.google_functions.google_api as google_api
 
-# Configure logging
+
 logging.basicConfig(
-    filename="app.log",  # Log file name
-    filemode="a",  # Append mode (use 'w' for overwrite mode)
-    level=logging.DEBUG,  # Set to DEBUG to capture all levels of logs
+    filename="app.log",
+    filemode="a",
+    level=logging.DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
+
+# Set the logging level for comtypes to WARNING or higher to reduce its verbosity
+logging.getLogger('comtypes').setLevel(logging.WARNING)
 
 # Load environment variables
 load_dotenv()
@@ -36,10 +41,11 @@ initialize_audio()
 
 try:
     response_text = chat_gpt("Hello")
-    logging.info(response_text)
+    logging.debug(response_text)
     tts_output(response_text)
-except ValueError as e:
-    logging.exception(f"Failed to get response from chat_gpt or output it.{e}")
+except SystemExit:
+    logging.exception("All attempts to get a response failed. Restarting the app.")
+    os.execv(sys.executable, ['python'] + sys.argv)  # Restart the application
 
 parser = argparse.ArgumentParser(description="Choose the device type")
 parser.add_argument(

@@ -2,10 +2,9 @@
 This module is responsible for handling voice commands using speech recognition
 and spacy.
 """
-
+import logging
 import spacy
 import speech_recognition as sr
-import logging
 
 from api.openai_functions.gpt_chat import (
     chat_gpt,
@@ -54,11 +53,11 @@ def get_similarity_score(text1, text2):
     Returns:
         float: The similarity score between the two texts.
     """
-    logging.debug(f"Computing similarity score between '{text1}' and '{text2}'")
+    logging.debug("Computing similarity score between '%s' and '%s'", text1, text2)
     doc1 = nlp(text1)
     doc2 = nlp(text2)
     score = doc1.similarity(doc2)
-    logging.debug(f"Similarity score: {score}")
+    logging.debug("Similarity score: %s", score)
     return score
 
 
@@ -87,7 +86,7 @@ def recognize_command(text, commands):
             best_match = command
 
     if max_similarity > 0.7:  # You can adjust this threshold
-        logging.debug(f"Recognized command: {best_match}")
+        logging.debug("Recognized command: %s", best_match)
         return best_match
     else:
         return None
@@ -102,7 +101,7 @@ def get_user_input():
     """
     # print("Please enter a command or type 'speak' to use voice recognition:")
     user_input = input()
-    logging.debug(f"User input: {user_input}")
+    logging.debug("User input: %s", user_input)
     if user_input.lower() == "speak":
         return recognize_speech()
     else:
@@ -163,7 +162,7 @@ def handle_common_voice_commands(
 
     while True:
         if not standby_mode:
-            print("\nPlease enter a command or type 'speak' to use your voice:")
+            print("\nPlease enter a command: ")
         text = get_user_input()
         if text:
             if any(phrase in text.lower() for phrase in standby_phrases):
@@ -268,10 +267,12 @@ def handle_common_voice_commands(
                     emails = get_emails(user_object_id)
                     if emails:
                         for email in emails:
-                            print(f"\nSubject: {email['subject']}")
-                            print(f"From: {email['from']['emailAddress']['address']}")
-                            print(f"Date: {email['receivedDateTime']}")
-                            print(f"Body: {email['body']['content']}")
+                            print(
+                                f"\nSubject: {email['subject']}",
+                                f"From: {email['from']['emailAddress']['address']}",
+                                f"Date: {email['receivedDateTime']}",
+                                f"Body: {email['body']['content']}"
+                            )
                     else:
                         print("No emails found.")
 
@@ -330,3 +331,6 @@ def handle_common_voice_commands(
                     print("Command not recognized. Please try again.")
                 elif conversation_active:
                     print("Unrecognized input. Please try again.")
+                    continue
+                else:
+                    continue

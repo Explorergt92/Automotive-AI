@@ -26,12 +26,12 @@ from config import (
 )
 
 # Configure logging
-logging.basicConfig(
-    filename="app.log",  # Log file name
-    filemode="a",  # Append mode (use 'w' for overwrite mode)
-    level=logging.DEBUG,  # Set to DEBUG to capture all levels of logs
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+# logging.basicConfig(
+   # filename="app.log",  # Log file name
+   # filemode="a",  # Append mode (use 'w' for overwrite mode)
+   # level=logging.DEBUG,  # Set to DEBUG to capture all levels of logs
+   # format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+# )
 
 # Set up authentication with Microsoft Graph API
 authority = f"https://login.microsoftonline.com/{GRAPH_TENANT_ID}"
