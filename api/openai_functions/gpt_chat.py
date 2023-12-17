@@ -14,6 +14,41 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 console = Console()
 
 
+def askChatGPT(**kwargs) -> str:
+    """
+    Use a Large Language Model (LLM) to perform analysis, summarization, or classification of text using ChatGPT
+
+    :param temperature: The temperature associated with the request: 0 for factual, up to 2 for very creative.
+    :type temperature: int
+    :param question: What are you requesting be done with the text?
+    :type question: str
+    :param text: The text to be analyzed
+    :type text: str
+    :return: The response from the LLM
+    :type: str
+    """
+    temperature = kwargs.get('temperature', 0.5)
+    question = kwargs.get('question', '')
+    text = kwargs.get('text', '')
+    if not question:
+        raise ValueError('question is a required parameter')
+    if not text:
+        raise ValueError('text is a required parameter')
+    if not isinstance(temperature, int):
+        raise TypeError('temperature must be an integer')
+    if temperature < 0 or temperature > 2:
+        raise ValueError('temperature must be between 0 and 2')
+    prompt = f'Question: {question}\nText: {text}\nAnswer:'
+    response = client.chat.completions.create(
+        model='gpt-4',
+        prompt=prompt,
+        max_tokens=200,
+        temperature=temperature,
+        stop=['\n']
+    )
+    return response.choices[0].text
+
+
 def chat_gpt(prompt, attempt=1):
     """
     Generates a response using OpenAI's API with retry logic.
@@ -33,6 +68,33 @@ def chat_gpt(prompt, attempt=1):
         start_time = time.time()
         while time.time() - start_time < timeout:
             try:
+                tools = [
+                    {
+                        "type": "function",
+                        "function": {
+                            "name": "askChatGPT",
+                            "description": "Use a Large Language Model (LLM) to perform analysis, summarization, or classification of text using ChatGPT",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "temperature": {
+                                        "type": "integer",
+                                        "description": "The temperature associated with the request: 0 for factual, up to 2 for very creative.",
+                                    },
+                                    "question": {
+                                        "type": "string",
+                                        "description": ["What are you requesting be done with the text?"],
+                                    },
+                                    "text": {
+                                        "type": "string",
+                                        "description": ["The text to be analyzed"]
+                                    },
+                                },
+                                "required": ["location"],
+                            },
+                        },
+                    }
+                ]
                 completion = client.chat.completions.create(
                     model=model,
                     messages=[
@@ -45,6 +107,8 @@ def chat_gpt(prompt, attempt=1):
                             "content": f"{prompt}",
                         },
                     ],
+                    tools=tools,
+                    tool_choice="auto",
                     max_tokens=200,
                     n=1,
                     stop=None,
@@ -195,10 +259,7 @@ def load_conversation_history(file_path="conversation_history.json"):
         except IOError as io_error:
             console.print(f"[bold red]Error loading history: {io_error}")
             conversation_history = [
-                {
-                    "role": "system",
-                    "content": "You are an AI assistant."
-                }
+                {"role": "system", "content": "You are an AI assistant."}
             ]
     return conversation_history
 
@@ -276,12 +337,7 @@ def summarize_conversation_history_direct(conversation_history):
             summarized_history = [
                 {"role": "system", "content": "You are an AI assistant"}
             ]
-            summarized_history.append(
-                {
-                    "role": "assistant",
-                    "content": summary_text
-                }
-            )
+            summarized_history.append({"role": "assistant", "content": summary_text})
         except APIConnectionError as e:
             console.print("[bold red]The server could not be reached")
             console.print(e.__cause__)

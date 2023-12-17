@@ -26,7 +26,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-# Set the logging level for comtypes to WARNING or higher to reduce its verbosity
+# Set the logging level for comtypes to WARNING or higher to reduce verbosity
 logging.getLogger('comtypes').setLevel(logging.WARNING)
 
 # Load environment variables
@@ -44,7 +44,7 @@ try:
     logging.debug(response_text)
     tts_output(response_text)
 except SystemExit:
-    logging.exception("All attempts to get a response failed. Restarting the app.")
+    logging.exception("All attempts to get response failed. Restarting app.")
     os.execv(sys.executable, ['python'] + sys.argv)  # Restart the application
 
 parser = argparse.ArgumentParser(description="Choose the device type")
@@ -81,4 +81,5 @@ try:
         elif email_provider == "Google":
             handle_common_voice_commands(args, email_provider=email_provider)
 except ValueError as e:
-    logging.exception(f"Error occurred while handling voice commands: {e}")
+    logging.exception("Error occurred while handling voice commands: %s", e)
+    tts_output("Sorry, I could not understand you.")
