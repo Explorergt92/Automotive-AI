@@ -4,7 +4,7 @@ from io import BytesIO
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
 import pygame
 from gtts import gTTS
-import pyttsx3
+import pyttsx4
 
 from config import TTS_ENGINE, TTS_VOICE_ID, TTS_RATE
 
@@ -29,8 +29,8 @@ def play_audio(audio: Union[bytes, BytesIO]):
 def tts_output(text):
     if TTS_ENGINE == "gtts":
         tts_output_gtts(text)
-    elif TTS_ENGINE == "pyttsx3":
-        tts_output_pyttsx3(text)
+    elif TTS_ENGINE == "pyttsx4":
+        tts_output_pyttsx4(text)
     else:
         raise ValueError(f"Invalid TTS_ENGINE value: {TTS_ENGINE}")
 
@@ -45,8 +45,8 @@ def tts_output_gtts(text):
     play_audio(audio_data)
 
 
-def tts_output_pyttsx3(text):
-    engine = pyttsx3.init('sapi5')
+def tts_output_pyttsx4(text):
+    engine = pyttsx4.init('sapi5')
 
     voices = engine.getProperty('voices')
 

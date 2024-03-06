@@ -9,12 +9,11 @@ from rich.console import Console
 from openai import OpenAI, APIConnectionError, RateLimitError, APIStatusError
 from config import OPENAI_API_KEY
 
-# Instantiate OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
 console = Console()
 
 
-def askChatGPT(**kwargs) -> str:
+def ask_chat_gpt(**kwargs) -> str:
     """
     Use a Large Language Model (LLM) to perform analysis, summarization, or classification of text using ChatGPT
 
@@ -72,7 +71,7 @@ def chat_gpt(prompt, attempt=1):
                     {
                         "type": "function",
                         "function": {
-                            "name": "askChatGPT",
+                            "name": "ask_chat_gpt",
                             "description": "Use a Large Language Model (LLM) to perform analysis, summarization, or classification of text using ChatGPT",
                             "parameters": {
                                 "type": "object",
@@ -83,11 +82,11 @@ def chat_gpt(prompt, attempt=1):
                                     },
                                     "question": {
                                         "type": "string",
-                                        "description": ["What are you requesting be done with the text?"],
+                                        "description": "What are you requesting be done with the text?",
                                     },
                                     "text": {
                                         "type": "string",
-                                        "description": ["The text to be analyzed"]
+                                        "description": "The text to be analyzed"
                                     },
                                 },
                                 "required": ["location"],
